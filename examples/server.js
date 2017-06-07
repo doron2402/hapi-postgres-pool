@@ -1,16 +1,16 @@
 'use strict';
-const Server = require('hapi').Server
+const Server = require('hapi').Server;
 const server = new Server({
   debug: {
     log: ['error', 'warn', 'info', 'pg-pool'],
     request: ['error', 'warn', 'info']
   }
-})
+});
 
-server.connection({ port: 3000, host: 'localhost' })
+server.connection({ port: 3000, host: 'localhost' });
 
 server.register({
-  register: require('../lib/index'),
+  register: require('../'),
   options: {
     native: true,
     attach: 'onPreAuth',
@@ -43,10 +43,10 @@ server.register({
   }
 }, (err) => {
   if (err) {
-    throw err
+    throw err;
   }
 
-  server.route({
+  server.route([{
     method: 'GET',
     path: '/',
     config: {
@@ -61,19 +61,38 @@ server.register({
             return reply({
               results: [result0, result1]
             });
-          })
-        }).catch(err => {
+          });
+        }).catch((err) => {
           server.log('error', err);
           return reply(err);
         });
       }
     }
-  })
+  }, {
+    method: 'GET',
+    path: '/promise',
+    config: {
+      handler: function (request, reply) {
+        const queryDB1 = 'select * from SOME_TABLE limit 1';
+        const queryDB2 = 'select * from ANOTHER_TABLE limit 1';
+        Promise.all([
+          request.pg['1'].query(queryDB1),
+          request.pg['2'].query(queryDB2)
+        ])
+        .then((results) => {
+          return reply({ results });
+        }).catch((err) => {
+          server.log('error', err);
+          return reply(err);
+        });
+      }
+    }
+  }]);
 
   server.start((err) => {
     if (err) {
-      return server.log('error', err)
+      return server.log('error', err);
     }
-    server.log('info', `Example server started: ${server.info.uri}`)
+    server.log('info', `Example server started: ${server.info.uri}`);
   });
 });

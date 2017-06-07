@@ -2,7 +2,6 @@
 /**
  * Simple example using pool client (Not Native)
  */
-const pg = require('pg');
 const Pool = require('pg-pool');
 
 const configChronosA = {
@@ -25,24 +24,25 @@ const configChronosB = {
 const poolA = new Pool(configChronosA);
 const poolB = new Pool(configChronosB);
 
-poolA.connect().then(client => {
-  client.query('select * from my_table limit 1').then(res => {
-    client.release()
-    console.log('data: ', res.rows[0])
+poolA.connect().then((client) => {
+  client.query('select * from my_table limit 1')
+  .then((res) => {
+    client.release();
+    console.log('data: ', res.rows[0]);
   })
-  .catch(e => {
-    client.release()
-    console.error('query error', e.message, e.stack)
-  })
-})
+  .catch((e) => {
+    client.release();
+    console.error('query error', e.message, e.stack);
+  });
+});
 
-poolB.connect().then(client => {
-  client.query('select * from my_table limit 1').then(res => {
-    client.release()
-    console.log('data2:', res.rows[0])
+poolB.connect().then((client) => {
+  client.query('select * from my_table limit 1').then((res) => {
+    client.release();
+    console.log('data2:', res.rows[0]);
   })
-  .catch(e => {
-    client.release()
-    console.error('query error', e.message, e.stack)
-  })
-})
+  .catch((e) => {
+    client.release();
+    console.error('query error', e.message, e.stack);
+  });
+});
