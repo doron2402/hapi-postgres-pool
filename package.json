@@ -1,0 +1,30 @@
+{
+  "name": "hapi-postgress-pool",
+  "version": "0.9.0",
+  "description": "Hapi plugin for interacting with multiple postgres",
+  "main": "lib/index.js",
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": {
+    "name": "Doron Segal",
+    "email": "doron2402@gmail.com"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "hoek": "^4.1.1",
+    "pg": "^6.2.3",
+    "pg-pool": "^1.7.1"
+  },
+  "pre-commit": [
+    "lint",
+    "test"
+  ],
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "eslint-config-hapi": "^10.0.0",
+    "hapi": "^16.4.1",
+    "pre-commit": "^1.2.2"
+  }
+}
