@@ -66,9 +66,10 @@ exports.register = function (server, options, next) {
   server.expose('pg', pools);
 
   server.ext(configuration.attach, (request, reply) => {
-    request.pg = {};
-    request._options = { default: configuration.default };
-    request.pg._get = _get;
+    request.pg = {
+      _options: { default: configuration.default },
+      _get
+    };
     Promise.all(
       Object.keys(pools)
       .filter(filterUnderscoreAttr)
