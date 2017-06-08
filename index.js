@@ -48,7 +48,6 @@ exports.register = function (server, options, next) {
     request.pg = {};
     Promise.all(Object.keys(pools).map((key) => pools[key].connect()))
     .then((results) => {
-      console.log(results);
       results.forEach((res, index) => {
         request.pg[Object.keys(pools)[index]] = res;
       });
