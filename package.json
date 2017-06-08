@@ -1,6 +1,6 @@
 {
   "name": "hapi-postgres-pool",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Hapi plugin for interacting with multiple postgres",
   "main": "index.js",
   "scripts": {
@@ -8,14 +8,28 @@
     "test": "tap --no-cov test/*.test.js"
   },
   "author": {
-    "name": "Doron Segal",
-    "email": "doron2402@gmail.com"
+    "name": "Doron Segal"
   },
   "license": "ISC",
   "dependencies": {
     "hoek": "^4.1.1",
     "pg": "^6.2.3",
     "pg-pool": "^1.7.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com:doron2402/hapi-postgres-pool.git"
+  },
+  "contributors": [],
+  "keywords": [
+    "pg",
+    "postgres",
+    "postgresql",
+    "pool",
+    "multiple connections"
+  ],
+  "bugs": {
+    "url": "https://github.com/doron2402/hapi-postgres-pool/issues"
   },
   "pre-commit": [
     "lint",
