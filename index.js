@@ -43,12 +43,13 @@ exports.register = function (server, options, next) {
     pools[configuration.default] = new Pool(configuration);
   }
 
+
   server.ext(configuration.attach, (request, reply) => {
     request.pg = {};
     Promise.all(Object.keys(pools).map((key) => pools[key].connect()))
     .then((results) => {
       console.log(results);
-      result.forEach((res, index) => {
+      results.forEach((res, index) => {
         request.pg[Object.keys(pools)[index]] = res;
       });
       reply.continue();

@@ -5,10 +5,10 @@ const Pkg = require('../package.json');
 
 Test('paclage version', (t) => {
   t.plan(1);
-  t.is('0.9.3', Pkg.version);
+  t.is('0.9.4', Pkg.version);
 });
 
 Test('package name', (t) => {
   t.plan(1);
-  t.is('hapi-postgress-pool', Pkg.name);
+  t.is('hapi-postgres-pool', Pkg.name);
 });
