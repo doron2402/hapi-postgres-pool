@@ -8,6 +8,9 @@ I also like to use module that use least amount of dependencies.
 ## Usage
 
 ```js
+/**
+* Register the plugin
+**/
 register: require('../'),
   options: {
     native: true,
@@ -41,8 +44,10 @@ register: require('../'),
   }
 ```
 
-### When you need to perform a query for multiple dbs you can use:
-```
+```js
+/**
+* perform queries
+**/
 method: 'GET',
 path: '/promise',
 config: {
