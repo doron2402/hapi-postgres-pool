@@ -43,6 +43,11 @@ exports.register = function (server, options, next) {
     pools[configuration.default] = new Pool(configuration);
   }
 
+  // Expose pools
+  // server.plugins['hapi-postgres-pool][pg][POOL_NAME].connect().then((client) => {
+  //   client.query('SELECT * FROM ...')
+  // })...
+  server.expose('pg', pools);
 
   server.ext(configuration.attach, (request, reply) => {
     request.pg = {};
