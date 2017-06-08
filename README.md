@@ -5,11 +5,9 @@ Hapi plugin for connecting to multiple postgres databases
 I've created this module because I couldn't find postgres plugin that can connect to multiple postgres db.
 I also like to use module that use least amount of dependencies.
 
-## how to use:
+## Usage
 
-1. `npm install`
-2. Register the plugin
-```
+```js
 register: require('../'),
   options: {
     native: true,
