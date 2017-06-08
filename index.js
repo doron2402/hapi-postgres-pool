@@ -18,6 +18,20 @@ const DEFAULT_CONFIGURATION = {
   connections: [] // overwrite configuration
 };
 
+const filterUnderscoreAttr = (x) => x.indexOf('_') === -1;
+const _get = function (item) {
+  // Look for connection
+  if (this[item]) {
+    return item;
+  }
+  // Get default
+  if (this._options.default) {
+    return this._options.default;
+  }
+  // get first connection you find
+  return Object.keys(this).filter(filterUnderscoreAttr)[0];
+};
+
 exports.register = function (server, options, next) {
   // Merge options with default configuration
   let configuration = Hoek.applyToDefaults(DEFAULT_CONFIGURATION, options);
@@ -43,6 +57,8 @@ exports.register = function (server, options, next) {
     pools[configuration.default] = new Pool(configuration);
   }
 
+  pools._options = { default: configuration.default };
+  pools._get = _get;
   // Expose pools
   // server.plugins['hapi-postgres-pool][pg][POOL_NAME].connect().then((client) => {
   //   client.query('SELECT * FROM ...')
@@ -51,14 +67,13 @@ exports.register = function (server, options, next) {
 
   server.ext(configuration.attach, (request, reply) => {
     request.pg = {};
-    request.pg._get = function (item) {
-      if (this[item]) {
-        return item;
-      }
-      return Object.keys(this).filter((x) => x.indexOf('_') === -1)[0];
-    };
-    Promise.all(Object.keys(pools).map((key) => pools[key].connect()))
-    .then((results) => {
+    request._options = { default: configuration.default };
+    request.pg._get = _get;
+    Promise.all(
+      Object.keys(pools)
+      .filter(filterUnderscoreAttr)
+      .map((key) => pools[key].connect())
+    ).then((results) => {
       results.forEach((res, index) => {
         request.pg[Object.keys(pools)[index]] = res;
       });
