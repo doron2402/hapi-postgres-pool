@@ -42,10 +42,10 @@ Test('Two native connections',(t) => {
     }
   }, (err) => {
     t.is(err, undefined);
-    t.type(server.plugins['hapi-postgres-pool'], 'object', 'plugin is exposed');
-    t.type(server.plugins['hapi-postgres-pool'].pg, 'object', 'plugin exposed `pg` object');
-    t.type(server.plugins['hapi-postgres-pool'].pg['worker-2'], 'object', 'plugin exposed pool connection');
-    t.ok(server.plugins['hapi-postgres-pool'].pg['0'], 'set index as key when key is not passed');
+    t.type(server.plugins[Pkg.name], 'object', 'plugin is exposed');
+    t.type(server.plugins[Pkg.name].pg, 'object', 'plugin exposed `pg` object');
+    t.type(server.plugins[Pkg.name].pg['worker-2'], 'object', 'plugin exposed pool connection');
+    t.ok(server.plugins[Pkg.name].pg['0'], 'set index as key when key is not passed');
     t.end();
   });
 });
