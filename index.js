@@ -22,14 +22,14 @@ const filterUnderscoreAttr = (x) => x.indexOf('_') === -1;
 const _get = function (item) {
   // Look for connection
   if (this[item]) {
-    return item;
+    return this[item];
   }
   // Get default
-  if (this._options.default) {
-    return this._options.default;
+  if (this._options.default && this[this._options.default]) {
+    return this[this._options.default];
   }
   // get first connection you find
-  return Object.keys(this).filter(filterUnderscoreAttr)[0];
+  return this[Object.keys(this).filter(filterUnderscoreAttr)[0]];
 };
 
 exports.register = function (server, options, next) {
