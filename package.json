@@ -1,6 +1,6 @@
 {
   "name": "hapi-postgres-pool",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Hapi plugin for interacting with multiple postgres",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com:doron2402/hapi-postgres-pool.git"
+    "url": "https://github.com/doron2402/hapi-postgres-pool.git"
   },
   "contributors": [],
   "keywords": [
