@@ -14,6 +14,7 @@ const DEFAULT_CONFIGURATION = {
   password: 'postgres',
   port: 5432,
   host: 'localhost',
+  default: 'default',
   connections: [] // overwrite configuration
 };
 
@@ -24,11 +25,11 @@ exports.register = function (server, options, next) {
   configuration.log = configuration.log || ((msg, data) => server.log(['pg-pool', data], msg));
 
   if (configuration.native) {
-    const NativeClient = Pg.native;
+    const NativeClient = Pg.native.Client;
     configuration = Hoek.applyToDefaults({ Client: NativeClient }, configuration);
   }
 
-  const pools = [];
+  const pools = {};
   // Check for number of dbs
   if (Array.isArray(configuration.connections) && configuration.connections.length > 0) {
     // Multiple pools
@@ -39,28 +40,31 @@ exports.register = function (server, options, next) {
   }
   else {
     // Single pool
-    pools[0] = new Pool(configuration);
+    pools[configuration.default] = new Pool(configuration);
   }
 
-
   server.ext(configuration.attach, (request, reply) => {
-    request.pg = [];
-    pools.forEach((pool, index) => {
-      request.pg[index] = {
-        connect: pool.connect.bind(pool),
-        query: pool.query.bind(pool),
-        on: pool.on.bind(pool)
-      };
+    request.pg = {};
+    Promise.all(Object.keys(pools).map((key) => pools[key].connect()))
+    .then((results) => {
+      console.log(results);
+      result.forEach((res, index) => {
+        request.pg[Object.keys(pools)[index]] = res;
+      });
+      reply.continue();
+    })
+    .catch((err) => {
+      server.log(['error', Pkg.name], 'Error connect to postgres');
+      server.log(['error', Pkg.name], err);
+      reply.continue();
     });
-
-    reply.continue();
   });
 
   server.once(configuration.detach, () => {
-    server.log(['info', Pkg.name], 'Draining PostgreSQL connection pool...');
-    pools.forEach((pool, index) => {
-      pool.end(() => {
-        server.log(['info', Pkg.name], 'PostgreSQL connection pool drained.');
+    server.log(['info', Pkg.name], 'Draining PostgreSQL connections');
+    Object.keys(pools).forEach((pool) => {
+      pools[pool].end(() => {
+        server.log(['info', Pkg.name], `PostgreSQL closing connection to ${pool}`);
       });
     });
   });
