@@ -68,6 +68,47 @@ config: {
 }
 ```
 
+## Usage: get connection from plugin
+```js
+const PgPool = server.plugins['hapi-postgres-pool'].pg;
+PgPool._get('first').connect()
+.then((client) {
+  client.query('SELECT * FROM SOME_TABLE)
+  .then((result) => {
+    client.release();
+    // Do something with the result
+  })
+  .catch((err) {
+    client.release();
+    // handle the error...
+  });
+});
+```
+
+## Usage: get specific connection `safe`
+```js
+const pg =  server.plugins['hapi-postgres-pool'].pg._get('db_1');
+pg.connect()
+.then((client) => {
+  client.query('SELECT SOMEHTING...')
+}).catch((err) => {
+  // handle error and release pg client
+})
+```
+or using request object
+```js
+const pg = request.pg._get('db_1');
+pg.connect()
+.then((client) => {
+  client.query('SELECT SOMEHTING...')
+  .then((result) {
+    // release client and handle results
+  }).catch((err) => {
+    // handle error and release pg client
+  });
+});
+```
+
 
 ## Questions
   - Checkout the examples

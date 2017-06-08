@@ -51,6 +51,12 @@ exports.register = function (server, options, next) {
 
   server.ext(configuration.attach, (request, reply) => {
     request.pg = {};
+    request.pg._get = function (item) {
+      if (this[item]) {
+        return item;
+      }
+      return Object.keys(this).filter((x) => x.indexOf('_') === -1)[0];
+    };
     Promise.all(Object.keys(pools).map((key) => pools[key].connect()))
     .then((results) => {
       results.forEach((res, index) => {
