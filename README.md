@@ -11,8 +11,9 @@ I also like to use module that use least amount of dependencies.
 /**
 * Register the plugin
 **/
-register: require('../'),
+register: require('hapi-postgres-pool'),
   options: {
+    default: 'primary_db',
     native: true,
     attach: 'onPreAuth',
     detach: 'tail',
@@ -73,7 +74,7 @@ config: {
 const PgPool = server.plugins['hapi-postgres-pool'].pg;
 PgPool._get('first').connect()
 .then((client) {
-  client.query('SELECT * FROM SOME_TABLE)
+  client.query('SELECT * FROM SOME_TABLE')
   .then((result) => {
     client.release();
     // Do something with the result
@@ -107,6 +108,30 @@ pg.connect()
     // handle error and release pg client
   });
 });
+```
+When passing invalid connection name the plugin will use the `default` connection
+```
+register: require('hapi-postgres-pool'),
+  options: {
+    default: 'primary_db',
+    native: true,
+    attach: 'onPreAuth',
+    detach: 'tail',
+    database: 'postgres',
+    user: 'postgres',
+    password: 'postgres',
+    port: 5432,
+    ssl: false,
+    max: 20,
+    min: 1,
+    idleTimeoutMillis: 5000,
+    connections: [{
+      key: '1', // The key will map request.pg[KEY_HERE].query()... in this case: request.pg['1'].query('SELECT * FROM USERS WHERE...')
+      user: 'doron',
+      password: 'doron',
+      ....
+ const pg = request.pg._get('invalid_db');
+// this will return the default database in this case: 'primary_db'
 ```
 
 
