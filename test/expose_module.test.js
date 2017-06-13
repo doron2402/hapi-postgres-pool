@@ -54,7 +54,7 @@ Test('safe get connection', (t) => {
   const stub = {
     pg: {},
     pool: function (options) {
-      return { test: 'ok', key: options.key };
+      return { test: 'ok', db: options.database };
     }
   };
 
@@ -78,24 +78,25 @@ Test('safe get connection', (t) => {
           user: 'postgres',
           password: 'postgres',
           port: 5432,
-          host: 'localhost'
+          host: 'localhost',
+          database: 'a'
         },
         {
           user: 'postgres',
           password: 'postgres',
           port: 5433,
           host: 'localhost',
-          key: 'worker-2'
+          key: 'worker-2',
+          database: 'b'
         }
       ]
     }
   }, (err) => {
     t.is(err, undefined);
     t.type(server.plugins[Pkg.name].pg._get('worker-4'), 'object', 'Should return worker-4');
-    t.equal(server.plugins[Pkg.name].pg._get('worker-4').key, 'worker-4');
-    t.equal(server.plugins[Pkg.name].pg._get('worker-10').key, 'worker-2');
-    t.equal(server.plugins[Pkg.name].pg._get('worker-2').key, 'worker-2');
-    t.equal(server.plugins[Pkg.name].pg._get(0).key, 'worker-2');
+    t.equal(server.plugins[Pkg.name].pg._get('worker-4').db, 'a');
+    t.equal(server.plugins[Pkg.name].pg._get('worker-100000').db, 'b');
+    t.equal(server.plugins[Pkg.name].pg._get('worker-2').db, 'b');
     t.end();
   });
 });

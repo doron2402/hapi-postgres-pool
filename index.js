@@ -1,7 +1,8 @@
 'use strict';
 // Node modules
 const Pool = require('pg-pool');
-const PgNative = require('pg-native');
+// const PgNative = require('pg-native');
+const PgNative = require('pg').native.Client;
 const Hoek = require('hoek');
 const Pkg = require('./package.json');
 
@@ -11,6 +12,10 @@ const DEFAULT_CONFIGURATION = {
   attach: 'onPreHandler',
   detach: 'stop',
   default: 'default',
+  min: 4,
+  max: 20,
+  ssl: false,
+  idleTimeoutMillis: 1000,
   connections: [] // overwrite configuration
 };
 
@@ -44,13 +49,30 @@ exports.register = function (server, options, next) {
     // Multiple pools
     configuration.connections.forEach((config, index) => {
       const key = config.key || index;
-      const internalOptions = Hoek.applyToDefaults(configuration, config);
+      const internalOptions = {};
+      const { host, port, user, password, Client, ssl,
+        min, max, idleTimeoutMillis, database
+      } = Hoek.applyToDefaults(configuration, config);
       if (config.connectionString) {
-        delete internalOptions.host;
-        delete internalOptions.port;
-        delete internalOptions.password;
-        delete internalOptions.user;
+        internalOptions.connectionString = config.connectionString;
       }
+      else {
+        internalOptions.host = host;
+        internalOptions.port = port;
+        internalOptions.user = user;
+        internalOptions.password = password;
+        internalOptions.database = database;
+      }
+      // Check for native client
+      if (Client) {
+        internalOptions.Client = Client;
+      }
+
+      internalOptions.ssl = ssl;
+      internalOptions.min = min;
+      internalOptions.max = max;
+      internalOptions.idleTimeoutMillis = idleTimeoutMillis;
+
       pools[key] = new Pool(internalOptions);
     });
   }
@@ -72,21 +94,13 @@ exports.register = function (server, options, next) {
       _options: { default: configuration.default },
       _get
     };
-    Promise.all(
-      Object.keys(pools)
-      .filter(filterUnderscoreAttr)
-      .map((key) => pools[key].connect())
-    ).then((results) => {
-      results.forEach((res, index) => {
-        request.pg[Object.keys(pools)[index]] = res;
-      });
-      reply.continue();
-    })
-    .catch((err) => {
-      server.log(['error', Pkg.name], 'Error connect to postgres');
-      server.log(['error', Pkg.name], err);
-      reply.continue();
+
+    Object.keys(pools)
+    .filter(filterUnderscoreAttr)
+    .forEach((key) => {
+      request.pg[key] = pools[key];
     });
+    reply.continue();
   });
 
   server.once(configuration.detach, () => {

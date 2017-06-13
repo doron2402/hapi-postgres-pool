@@ -7,11 +7,11 @@ const Pool = require('pg-pool');
 const Hoek = require('hoek');
 const NativeClient = require('pg').native;
 const configChronosA = {
-  user: 'doron',
-  password: 'doron',
-  host: 'localhost',
-  port: 5432,
-  database: 'doron',
+  user: process.env.USER || 'doron',
+  password: process.env.PASS || 'doron',
+  host: process.env.HOST || 'localhost',
+  port: process.env.PORT || 5432,
+  database: process.env.DB || 'db',
   ssl: false
 };
 const options = Hoek.applyToDefaults({ Client: NativeClient.Client }, configChronosA);

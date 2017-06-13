@@ -12,10 +12,20 @@ Test('Two native connections',(t) => {
     pg: {},
     pool: function (options) {
       numberOfPoolBeingCalled++;
-      t.is(options.native, true);
-      const portIndex = ports.indexOf(options.port);
-      t.notEqual(portIndex, -1);
-      ports.splice(portIndex, 1);
+      if (options.connectionString) {
+        t.is(options.user, undefined);
+        t.is(options.password, undefined);
+        t.is(options.host, undefined);
+        t.is(options.port, undefined);
+        t.isnot(options.connectionString, undefined);
+      }
+      else {
+        t.is(options.user, 'postgres');
+        const portIndex = ports.indexOf(options.port);
+        t.notEqual(portIndex, -1);
+        ports.splice(portIndex, 1);
+      }
+
     }
   };
 
@@ -44,12 +54,17 @@ Test('Two native connections',(t) => {
           password: 'postgres',
           port: 5433,
           host: 'localhost'
+        },
+        {
+          connectionString: 'test@test',
+          user: 'shouldRemove',
+          port: 8000
         }
       ]
     }
   }, (err) => {
     t.is(err, undefined);
-    t.is(numberOfPoolBeingCalled, 2);
+    t.is(numberOfPoolBeingCalled, 3);
     t.end();
   });
 });

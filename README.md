@@ -85,6 +85,7 @@ register: require('hapi-postgres-pool'),
 ```js
 /**
 * perform queries
+* You can also use Promise.all and query in parallel
 **/
 method: 'GET',
 path: '/promise',
@@ -93,16 +94,24 @@ config: {
     const queryDB1 = 'select * from SOME_TABLE limit 1';
     const queryDB2 = 'select * from ANOTHER_TABLE limit 1';
     const queryDB2 = 'select * from ANOTHER_TABLE_3 limit 1';
-    Promise.all([
-      request.pg['1'].query(queryDB1),
-      request.pg['2'].query(queryDB2),
-      request.pg['2'].query(queryDB3),
-    ])
-    .then((results) => {
-      return reply({ results });
-    }).catch((err) => {
-      server.log('error', err);
-      return reply(err);
+    request.server.plugins['hapi-postgres-pool'].pg['1'].connect().
+    .then((client1) => {
+      client1.query(queryDB1)
+      .then((res1) => {
+        //do something with res1
+        request.pg['2'].connect().then((client2) => {
+          client2.query(queryDB2)
+          .then((res2) => {
+            //do something with res2
+            return reply({ res2, res1 });
+          }).catch((err2) => {
+            console.error(err2);
+            return reply(err2);
+          });
+      }).catch((err1) => {
+        console.error(err1);
+        return reply(err1);
+      })
     });
   }
 }
