@@ -14,15 +14,19 @@ Test('default configurations',(t) => {
       if (options.key === 'one') {
         t.is(options.port, 8888);
       }
-      else {
-        // key is two
+      else if (options.key === 'two') {
+        // Should use the "parent" username
         t.is(options.user, 'postgres');
+      }
+      else if (options.key === 'three') {
+        t.is(options.user, undefined);
+        t.is(options.connectionString, 'postgres://postgres@localhost:5432/postgres');
       }
     }
   };
 
   const Plugin = Proxyquire('../', {
-    'pg': stub.pg,
+    'pg-native': stub.pg,
     'pg-pool': stub.pool
   });
   const Server = Hapi.Server;
@@ -34,6 +38,7 @@ Test('default configurations',(t) => {
       native: false,
       attach: 'onPreHandler',
       detach: 'stop',
+      user: 'postgres',
       port: 8888,
       connections: [
         {
@@ -47,12 +52,19 @@ Test('default configurations',(t) => {
           password: 'postgres',
           port: 6000,
           host: 'localhost'
+        },
+        {
+          // connectionString should overwrite the other options
+          key: 'three',
+          connectionString: 'postgres://postgres@localhost:5432/postgres',
+          user: 'postgres',
+          password: 'postgres'
         }
       ]
     }
   }, (err) => {
     t.is(err, undefined);
-    t.is(numberOfPoolBeingCalled, 2);
+    t.is(numberOfPoolBeingCalled, 3);
     t.end();
   });
 });

@@ -1,7 +1,7 @@
 'use strict';
 // Node modules
 const Pool = require('pg-pool');
-const Pg = require('pg');
+const PgNative = require('pg-native');
 const Hoek = require('hoek');
 const Pkg = require('./package.json');
 
@@ -10,10 +10,6 @@ const DEFAULT_CONFIGURATION = {
   native: false,
   attach: 'onPreHandler',
   detach: 'stop',
-  user: 'postgres',
-  password: 'postgres',
-  port: 5432,
-  host: 'localhost',
   default: 'default',
   connections: [] // overwrite configuration
 };
@@ -39,8 +35,7 @@ exports.register = function (server, options, next) {
   configuration.log = configuration.log || ((msg, data) => server.log(['pg-pool', data], msg));
 
   if (configuration.native) {
-    const NativeClient = Pg.native.Client;
-    configuration = Hoek.applyToDefaults({ Client: NativeClient }, configuration);
+    configuration = Hoek.applyToDefaults({ Client: PgNative }, configuration);
   }
 
   const pools = {};
@@ -49,7 +44,14 @@ exports.register = function (server, options, next) {
     // Multiple pools
     configuration.connections.forEach((config, index) => {
       const key = config.key || index;
-      pools[key] = new Pool(Hoek.applyToDefaults(configuration, config));
+      const internalOptions = Hoek.applyToDefaults(configuration, config);
+      if (config.connectionString) {
+        delete internalOptions.host;
+        delete internalOptions.port;
+        delete internalOptions.password;
+        delete internalOptions.user;
+      }
+      pools[key] = new Pool(internalOptions);
     });
   }
   else {

@@ -2,8 +2,42 @@
 Hapi plugin for connecting to multiple postgres databases
 
 ## Why
-I've created this module because I couldn't find postgres plugin that can connect to multiple postgres db.
+I've created this module because I couldn't find postgres plugin that can connect to multiple Postgresql db.
 I also like to use module that use least amount of dependencies.
+
+### Parameters:
++ `options` (Object):
+  * `native` (Boolean): using Postgresql native client
+    Default: `false`.
+  * `user` (String): Postgresql username
+  * `password` (String): Postgresql password
+  * `port` (Number): Postgresql port number
+  * `ssl` (Boolean): SSL on/off
+  * `max` (Number): Postgres pool max size
+  * `min` (Number): Postgres pool min size
+  * `idleTimeoutMillis` (Number): close idle clients after 1 second
+  * `database` (String): Database name
+  * `attach` (String): Hapi.js events for creating Postgresql connection available (for more info check [HAPI life cycle events](https://hapijs.com/api/#request-lifecycle))
+    Default: `onPreHandler`
+  * `detach` (String): Hapi.js events for closing the connection (for more info check [HAPI life cycle events](https://hapijs.com/api/#request-lifecycle))
+    Default: 'stop'
+  * `default` (String): default db name. when using multiple dbs you might want
+    to use a config or modulo but when the module can't find any connection it
+    will return the default one.
+  + `connection` (Array): Array of db connections
+    * `key` (String): the database name, this will help you to decide which db
+      you would like to access
+    * `connectionString` (String): postgres connection string:
+      postgres://foo:bar@baz:1234/xur
+    * `user` (String): Postgresql username
+    * `password` (String): Postgresql password
+    * `port` (Number): Postgresql port number
+    * `ssl` (Boolean): SSL on/off
+    * `max` (Number): Postgres pool max size
+    * `min` (Number): Postgres pool min size
+    * `idleTimeoutMillis` (Number): close idle clients after 1 second
+    * `database` (String): Database name
+
 
 ## Usage
 
@@ -41,6 +75,9 @@ register: require('hapi-postgres-pool'),
       port: 5433,
       database: 'database_2',
       ssl: false
+    }, {
+      key: '3',
+      connectionString: 'postgres://foo:bar@baz:1234/xur'
     }]
   }
 ```
@@ -55,9 +92,11 @@ config: {
   handler: function (request, reply) {
     const queryDB1 = 'select * from SOME_TABLE limit 1';
     const queryDB2 = 'select * from ANOTHER_TABLE limit 1';
+    const queryDB2 = 'select * from ANOTHER_TABLE_3 limit 1';
     Promise.all([
       request.pg['1'].query(queryDB1),
-      request.pg['2'].query(queryDB2)
+      request.pg['2'].query(queryDB2),
+      request.pg['2'].query(queryDB3),
     ])
     .then((results) => {
       return reply({ results });
