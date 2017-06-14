@@ -1,6 +1,6 @@
 {
   "name": "hapi-postgres-pool",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Hapi plugin for interacting with multiple postgres",
   "main": "index.js",
   "scripts": {

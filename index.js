@@ -126,7 +126,9 @@ exports.register = function (server, options, next) {
 
   server.once(configuration.detach, () => {
     server.log(['info', Pkg.name], 'Draining PostgreSQL connections');
-    Object.keys(pools).forEach((pool) => {
+    Object.keys(pools)
+    .filter(filterUnderscoreAttr)
+    .forEach((pool) => {
       pools[pool].end(() => {
         server.log(['info', Pkg.name], `PostgreSQL closing connection to ${pool}`);
       });
