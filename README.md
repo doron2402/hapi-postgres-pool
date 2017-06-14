@@ -17,8 +17,15 @@ I also like to use module that use least amount of dependencies.
   * `min` (Number): Postgres pool min size
   * `idleTimeoutMillis` (Number): close idle clients after 1 second
   * `database` (String): Database name
-  * `attach` (String): Hapi.js events for creating Postgresql connection available (for more info check [HAPI life cycle events](https://hapijs.com/api/#request-lifecycle))
+  * `attach` (String): Hapi.js events for creating Postgresql connection available (for more info
+  check [HAPI life cycle events](https://hapijs.com/api/#request-lifecycle))
     Default: `onPreHandler`
+  * `attachedQueries` (Array): Array contain strings of query params, for example when passing
+    ['user_id', 'username'] as a query params `?user_id` or `?email=asdf@asdf.com&username=aaa`
+    the module will attach the plugin.
+  * `attachedParams` (Array): Array contain strings of params same as `attachedQueries` just for
+    params. for example if the url is `/users/{username}` and you would like to have the plugin
+    available you can pass `attachedParams`:`['username']`.
   * `detach` (String): Hapi.js events for closing the connection (for more info check [HAPI life cycle events](https://hapijs.com/api/#request-lifecycle))
     Default: 'stop'
   * `default` (String): default db name. when using multiple dbs you might want

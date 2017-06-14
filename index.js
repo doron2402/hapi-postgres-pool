@@ -10,7 +10,7 @@ const Pkg = require('./package.json');
 const DEFAULT_CONFIGURATION = {
   native: false,
   attach: 'onPreHandler',
-  detach: 'stop',
+  detach: 'tail',
   default: 'default',
   min: 4,
   max: 20,
@@ -20,6 +20,16 @@ const DEFAULT_CONFIGURATION = {
 };
 
 const filterUnderscoreAttr = (x) => x.indexOf('_') === -1;
+const intersectArrayWithObjectKeys = (obj, arr) => {
+  const tmp = Object.keys(obj).map((val) => {
+    return arr.indexOf(val) !== -1;
+  }).filter((x) => x === true);
+  if (tmp.length === 0) {
+    return false;
+  }
+  return true;
+};
+
 const _get = function (item) {
   // Look for connection
   if (this[item]) {
@@ -90,6 +100,17 @@ exports.register = function (server, options, next) {
   server.expose('pg', pools);
 
   server.ext(configuration.attach, (request, reply) => {
+    // Attach only when needed by query or params
+    const { attachedQueries = [], attachedParams = [] } = configuration;
+    if (attachedQueries.length > 0 || attachedParams.length > 0) {
+      // Lookup params values
+      const matchedParams = intersectArrayWithObjectKeys(request.params, attachedParams);
+      const matchedQueries = intersectArrayWithObjectKeys(request.query, attachedQueries);
+      // Dont attach db connection
+      if (!matchedParams && !matchedQueries) {
+        return reply.continue();
+      }
+    }
     request.pg = {
       _options: { default: configuration.default },
       _get
