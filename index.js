@@ -123,8 +123,10 @@ exports.register = function (server, options, next) {
     });
     reply.continue();
   });
-
-  server.once(configuration.detach, () => {
+  /**
+   * Closing Pool once server stop
+   */
+  server.once('stop', () => {
     server.log(['info', Pkg.name], 'Draining PostgreSQL connections');
     Object.keys(pools)
     .filter(filterUnderscoreAttr)

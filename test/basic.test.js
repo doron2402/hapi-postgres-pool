@@ -5,7 +5,7 @@ const Pkg = require('../package.json');
 
 Test('paclage version', (t) => {
   t.plan(1);
-  t.is('2.0.2', Pkg.version);
+  t.is('2.0.3', Pkg.version);
 });
 
 Test('package name', (t) => {

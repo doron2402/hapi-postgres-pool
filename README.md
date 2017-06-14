@@ -26,8 +26,6 @@ I also like to use module that use least amount of dependencies.
   * `attachedParams` (Array): Array contain strings of params same as `attachedQueries` just for
     params. for example if the url is `/users/{username}` and you would like to have the plugin
     available you can pass `attachedParams`:`['username']`.
-  * `detach` (String): Hapi.js events for closing the connection (for more info check [HAPI life cycle events](https://hapijs.com/api/#request-lifecycle))
-    Default: 'stop'
   * `default` (String): default db name. when using multiple dbs you might want
     to use a config or modulo but when the module can't find any connection it
     will return the default one.
