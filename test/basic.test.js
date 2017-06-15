@@ -6,7 +6,7 @@ const Plugin = require('../');
 
 Test('paclage version', (t) => {
   t.plan(1);
-  t.is('2.0.4', Pkg.version);
+  t.is('2.1.0', Pkg.version);
 });
 
 Test('package name', (t) => {

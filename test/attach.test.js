@@ -5,116 +5,132 @@ const Hapi = require('hapi');
 const Proxyquire = require('proxyquire');
 let server;
 
-Tap.test('attach plugin by query & params', (t) => {
-  let numberOfPoolBeingCalled = 0;
+const routePlugin = {
+  register: function (_server, options, next) {
+    _server.route([{
+      method: 'GET',
+      path: '/test/{user}',
+      handler: (request, reply) => {
+        return reply({
+          pg: request.pg,
+          query: request.query,
+          params: request.params
+        });
+      }
+    }, {
+      method: 'GET',
+      path: '/test',
+      handler: (request, reply) => {
+        return reply({
+          pg: request.pg,
+          query: request.query,
+          params: request.params
+        });
+      }
+    }]);
+    next();
+  }
+};
+
+routePlugin.register.attributes = {
+  name: 'route-test',
+  version: '1.0.0'
+};
+
+Tap.beforeEach((next) => {
+  const Server = Hapi.Server;
+  server = new Server();
+  server.connection({ port: 0 });
+  next();
+});
+
+Tap.test('attach plugin by params `user`', (t) => {
+  t.plan(17);
   const stub = {
     pg: {},
     pool: function (options) {
-      numberOfPoolBeingCalled++;
+      return { options, connect: () => {} };
     }
   };
-
+  const pluginOptions = {
+    native: true,
+    attachedParams: ['user'],
+    attachedQueries: ['user'],
+    attach: 'onPreHandler',
+    default: 'second',
+    connections: [
+      {
+        user: 'postgres',
+        password: 'postgres',
+        port: 5432,
+        host: 'localhost',
+        key: 'first'
+      },
+      {
+        user: 'postgres',
+        password: 'postgres',
+        port: 5433,
+        host: 'localhost',
+        key: 'second'
+      },
+      {
+        connectionString: 'test@test',
+        user: 'shouldRemove',
+        port: 8000
+      }
+    ]
+  };
   const Plugin = Proxyquire('../', {
     'pg': stub.pg,
     'pg-pool': stub.pool
   });
-
-  const testPlugin = {
-    register: function (_server, options, next) {
-      _server.route([{
-        method: 'GET',
-        path: '/test/{user}',
-        handler: (request, reply) => {
-          t.test('Make sure plugin is activated', (t) => {
-            t.ok(request.pg);
-            t.comment('Make sure the plugin is activated');
-            t.ok(request.pg.first);
-            t.ok(request.pg.second);
-            t.end();
-          });
-          reply({ body: 'success' });
-        }
-      }, {
-        method: 'GET',
-        path: '/test',
-        handler: (request, reply) => {
-          t.test('Plugin should not be attach to request', (t) => {
-            t.isEqual(request.pg, undefined);
-          });
-          reply({ body: 'no plugin attached' });
-        }
-      }]);
-      next();
-    }
-  };
-
-  testPlugin.register.attributes = {
-    name: 'test',
-    version: '1.0.0'
-  };
-  const Server = Hapi.Server;
-  server = new Server();
-  server.connection({ port: 3000, host: 'localhost' });
-  server.register([testPlugin, {
-    register: Plugin,
-    options: {
-      native: true,
-      attachedParams: ['user'],
-      attach: 'onPreHandler',
-      default: 'second',
-      connections: [
-        {
-          user: 'postgres',
-          password: 'postgres',
-          port: 5432,
-          host: 'localhost',
-          key: 'first'
-        },
-        {
-          user: 'postgres',
-          password: 'postgres',
-          port: 5433,
-          host: 'localhost',
-          key: 'second'
-        },
-        {
-          connectionString: 'test@test',
-          user: 'shouldRemove',
-          port: 8000
-        }
-      ]
-    }
-  }], (err) => {
-    t.is(err, undefined);
-    t.is(numberOfPoolBeingCalled, 3);
-    t.test('Test handlers', (t) => {
-      t.test('Plugin should be available only when query params are passing', (t) => {
-        const req = {
-          method: 'GET',
-          url: '/test/doron'
-        };
-        server.inject(req, (res) => {
-          t.equal(res.result.body, 'success');
-          t.equal(res.statusCode, 200);
-          t.end();
-        });
-      });
-
-      t.end();
+  server.register([routePlugin, { register: Plugin, options: pluginOptions }], (err) => {
+    t.isEqual(err, undefined);
+    const req = {
+      method: 'GET',
+      url: '/test/testparam'
+    };
+    server.inject(req, (res) => {
+      t.isEqual(res.result.params.user, 'testparam');
+      t.type(res.result.pg, 'object');
+      t.type(res.result.pg.first, 'object');
+      t.type(res.result.pg.second, 'object');
+      t.comment('Plugin will assign key when key is not assign');
+      t.type(res.result.pg[2], 'object');
     });
 
-    t.end();
-  });
-}).then((t) => {
-  t.test('Plugin should NOT be available only when query params are passing', (t) => {
-    const req = {
+    const req2 = {
       method: 'GET',
       url: '/test'
     };
-    server.inject(req, (res) => {
-      t.equal(res.result.body, 'no plugin attached');
-      t.equal(res.statusCode, 200);
-      t.end();
+    server.inject(req2, (res) => {
+      t.deepEqual(res.result.params, {});
+      t.type(res.result.pg, undefined);
+    });
+    // Check query params
+    const req3 = {
+      method: 'GET',
+      url: '/test?user=test'
+    };
+    server.inject(req3, (res) => {
+      t.deepEqual(res.result.params, {});
+      t.deepEqual(res.result.query, { user: 'test' });
+      t.type(res.result.pg, 'object');
+      t.type(res.result.pg.first, 'object');
+      t.type(res.result.pg.second, 'object');
+      t.comment('Plugin will assign key when key is not assign');
+      t.type(res.result.pg[2], 'object');
+    });
+
+    // Without query params or query in url
+    const req4 = {
+      method: 'GET',
+      url: '/test'
+    };
+    server.inject(req4, (res) => {
+      t.deepEqual(res.result.params, {});
+      t.deepEqual(res.result.query, {});
+      t.type(res.result.pg, undefined);
     });
   });
 });

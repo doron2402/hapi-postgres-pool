@@ -4,6 +4,13 @@ Hapi plugin for connecting to multiple postgres databases
 ## Why
 I've created this module because I couldn't find postgres plugin that can connect to multiple Postgresql db.
 I also like to use module that use least amount of dependencies.
+### Features:
+  - Connect to multiple postgres instances.
+  - Attach plugin based query and url parameters `attachedQueries` or/and `attachedParams`
+  - Access postgres connection using server object or request.
+  - pg-native support
+  - Use pg-pool. IMPORTANT to call `client.release()` after query
+  - Tests
 
 ### Parameters:
 + `options` (Object):
@@ -202,3 +209,6 @@ register: require('hapi-postgres-pool'),
   - Ping me on twitter or github.
   - [Twitter](twitter.com/segaldoron)
   - [Github](http://github.com/doron2402)
+
+## PR
+  - Please do.
