@@ -1,13 +1,11 @@
 {
   "name": "hapi-postgres-pool",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Hapi plugin for interacting with multiple postgres",
   "main": "index.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint .",
-    "test": "tap --no-cov test/*.test.js",
-    "lab-test": "./node_modules/lab/bin/lab -c --pattern spec",
-    "lab-test-cov": "./node_modules/lab/bin/lab -c --pattern spec -r html -o ./test/artifacts/coverage.html && open ./test/artifacts/coverage.html"
+    "test": "tap --no-cov test/*.test.js"
   },
   "author": {
     "name": "Doron Segal"
@@ -39,12 +37,10 @@
     "test"
   ],
   "devDependencies": {
-    "code": "^4.1.0",
     "eslint": "^3.19.0",
     "eslint-config-hapi": "^10.0.0",
     "eslint-plugin-hapi": "^4.0.0",
     "hapi": "^16.4.3",
-    "lab": "^14.0.1",
     "pre-commit": "^1.2.2",
     "proxyquire": "^1.8.0",
     "tap": "^10.3.3"

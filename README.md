@@ -55,7 +55,6 @@ register: require('hapi-postgres-pool'),
     default: 'primary_db',
     native: true,
     attach: 'onPreAuth',
-    detach: 'tail',
     database: 'postgres',
     user: 'postgres',
     password: 'postgres',
@@ -91,6 +90,8 @@ register: require('hapi-postgres-pool'),
 /**
 * perform queries
 * You can also use Promise.all and query in parallel
+* IMPORTANT: don't forget to `release` the client after
+* fetching the results `client.release()`
 **/
 method: 'GET',
 path: '/promise',
@@ -103,10 +104,13 @@ config: {
     .then((client1) => {
       client1.query(queryDB1)
       .then((res1) => {
+        // Release client1
+        client1.release();
         //do something with res1
         request.pg['2'].connect().then((client2) => {
           client2.query(queryDB2)
           .then((res2) => {
+            client2.release();
             //do something with res2
             return reply({ res2, res1 });
           }).catch((err2) => {
@@ -143,8 +147,13 @@ PgPool._get('first').connect()
 ```js
 const pg =  server.plugins['hapi-postgres-pool'].pg._get('db_1');
 pg.connect()
-.then((client) => {
+.then((client) =>
   client.query('SELECT SOMEHTING...')
+  .then((res) => {
+    client.release();
+  }).catch((errQuery) => {
+    // catch the error
+  });
 }).catch((err) => {
   // handle error and release pg client
 })
@@ -169,7 +178,6 @@ register: require('hapi-postgres-pool'),
     default: 'primary_db',
     native: true,
     attach: 'onPreAuth',
-    detach: 'tail',
     database: 'postgres',
     user: 'postgres',
     password: 'postgres',

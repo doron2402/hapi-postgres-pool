@@ -61,7 +61,6 @@ Tap.test('attach plugin by query & params', (t) => {
       native: true,
       attachedParams: ['user'],
       attach: 'onPreHandler',
-      detach: 'tail',
       default: 'second',
       connections: [
         {

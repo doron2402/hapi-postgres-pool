@@ -10,7 +10,6 @@ const Pkg = require('./package.json');
 const DEFAULT_CONFIGURATION = {
   native: false,
   attach: 'onPreHandler',
-  detach: 'tail',
   default: 'default',
   min: 4,
   max: 20,

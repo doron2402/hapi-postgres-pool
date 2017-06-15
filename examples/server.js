@@ -14,7 +14,6 @@ server.register({
   options: {
     native: true,
     attach: 'onPreAuth',
-    detach: 'tail',
     database: 'postgres',
     user: 'postgres',
     password: 'postgres',

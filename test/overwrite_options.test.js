@@ -37,7 +37,6 @@ Test('default configurations',(t) => {
     options: {
       native: false,
       attach: 'onPreHandler',
-      detach: 'stop',
       user: 'postgres',
       port: 8888,
       connections: [

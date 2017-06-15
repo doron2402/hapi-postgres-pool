@@ -23,7 +23,6 @@ Test('Expose plugin',(t) => {
     options: {
       native: true,
       attach: 'onPreHandler',
-      detach: 'stop',
       connections: [
         {
           user: 'postgres',
@@ -71,7 +70,6 @@ Test('safe get connection', (t) => {
       native: true,
       default: 'worker-2',
       attach: 'onPreHandler',
-      detach: 'stop',
       connections: [
         {
           key: 'worker-4',
