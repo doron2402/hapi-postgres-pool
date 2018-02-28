@@ -9,11 +9,11 @@ const pgSettings = {
   connections: [
     {
       key: 'first',
-      connectionString: 'postgres://doron:pass123@localhost:5432/db1'
+      connectionString: 'postgres://doron:pass123@localhost:10001/postgres'
     },
     {
       key: 'second',
-      connectionString: 'postgres://doron:pass123@localhost:5433/db2'
+      connectionString: 'postgres://doron:pass123@localhost:10002/postgres'
     }
   ]
 };
@@ -34,8 +34,8 @@ server.route({
   handler: function (request, reply) {
     request.server.plugins['hapi-postgres-pool'].pg.first.connect()
     .then((client) => {
-      client.query('select * from data limit 1;').then((res) => {
-        reply(res);
+      client.query('select * from pg_stat_activity limit 1;').then((res) => {
+        reply(res.rows);
       }).catch((err) => {
         reply(err);
       });

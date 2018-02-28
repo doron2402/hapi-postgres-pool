@@ -7,35 +7,34 @@ const Proxyquire = require('proxyquire');
 Test('Two native connections',(t) => {
   let numberOfPoolBeingCalled = 0;
   const ports = [5432, 5433];
+  const PoolStub = function (options) {
+    numberOfPoolBeingCalled++;
+    if (options.connectionString) {
+      t.is(options.user, undefined);
+      t.is(options.password, undefined);
+      t.is(options.host, undefined);
+      t.is(options.port, undefined);
+      t.isnot(options.connectionString, undefined);
+    }
+    else {
+      t.is(options.user, 'postgres');
+      const portIndex = ports.indexOf(options.port);
+      t.notEqual(portIndex, -1);
+      ports.splice(portIndex, 1);
+    }
+  };
+  PoolStub.prototype.connect = () => {};
+
   const stub = {
     pg: {
       native: {
-        Client: () => {}
-      }
-    },
-    pool: function (options) {
-      numberOfPoolBeingCalled++;
-      if (options.connectionString) {
-        t.is(options.user, undefined);
-        t.is(options.password, undefined);
-        t.is(options.host, undefined);
-        t.is(options.port, undefined);
-        t.isnot(options.connectionString, undefined);
-      }
-      else {
-        t.is(options.user, 'postgres');
-        const portIndex = ports.indexOf(options.port);
-        t.notEqual(portIndex, -1);
-        ports.splice(portIndex, 1);
-      }
-
+        Pool: PoolStub
+      },
+      Pool: PoolStub
     }
   };
 
-  const Plugin = Proxyquire('../', {
-    'pg': stub.pg,
-    'pg-pool': stub.pool
-  });
+  const Plugin = Proxyquire('../', stub);
   const Server = Hapi.Server;
   const server = new Server();
   server.connection({ port: 3000, host: 'localhost' });
@@ -74,22 +73,26 @@ Test('Two native connections',(t) => {
 Test('Non Native connection', (t) => {
   t.plan(2);
   let isNativeCalled = false;
+  const PoolStub = function (options) {
+    isNativeCalled = false;
+  };
+  const NativePoolStub = function (options) {
+    isNativeCalled = true;
+  };
+
+  PoolStub.prototype.connect = () => {};
+  NativePoolStub.prototype.connect = () => {};
+
   const stub = {
     pg: {
       native: {
-        Client: () => {}
-      }
-    },
-    pool: function (options) {
-      isNativeCalled = options.Client ? true : false;
-      return;
+        Pool: NativePoolStub
+      },
+      Pool: PoolStub
     }
   };
 
-  const Plugin = Proxyquire('../', {
-    'pg': stub.pg,
-    'pg-pool': stub.pool
-  });
+  const Plugin = Proxyquire('../', stub);
   const Server = Hapi.Server;
   const server = new Server();
   server.connection({ port: 3000, host: 'localhost' });
@@ -122,24 +125,26 @@ Test('Non Native connection', (t) => {
 Test('Native connection', (t) => {
   t.plan(2);
   let isNativeCalled = false;
+  const PoolStub = function (options) {
+    isNativeCalled = false;
+  };
+  const NativePoolStub = function (options) {
+    isNativeCalled = true;
+  };
+
+  PoolStub.prototype.connect = () => {};
+  NativePoolStub.prototype.connect = () => {};
+
   const stub = {
     pg: {
       native: {
-        Client: () => {
-          isNativeCalled = true;
-        }
-      }
-    },
-    pool: function (options) {
-      isNativeCalled = options.Client ? true : false;
-      return;
+        Pool: NativePoolStub
+      },
+      Pool: PoolStub
     }
   };
 
-  const Plugin = Proxyquire('../', {
-    'pg': stub.pg,
-    'pg-pool': stub.pool
-  });
+  const Plugin = Proxyquire('../', stub);
   const Server = Hapi.Server;
   const server = new Server();
   server.connection({ port: 3000, host: 'localhost' });

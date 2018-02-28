@@ -1,9 +1,10 @@
 # hapi-postgres-pool
-Hapi plugin for connecting to multiple postgres databases
+Hapi plugin for connecting to multiple PostgreSQL databases
 
 ## Why
-I've created this module because I couldn't find postgres plugin that can connect to multiple Postgresql db.
+I've created this module because I couldn't find PostgreSQL plugin that can connect to multiple Postgresql db.
 I also like to use module that use least amount of dependencies.
+
 ### Features:
   - Connect to multiple postgres instances.
   - Attach plugin based query and url parameters `attachedQueries` or/and `attachedParams`

@@ -1,7 +1,6 @@
 'use strict';
 // Node modules
-const { Pool } = require('pg')
-const PgNative = require('pg').native.Pool
+let { Pool } = require('pg');
 const Hoek = require('hoek');
 const Pkg = require('./package.json');
 const {
@@ -29,13 +28,9 @@ const DEFAULT_CONFIGURATION = {
 
 exports.register = function (server, options, next) {
   // Merge options with default configuration
-  let configuration = Hoek.applyToDefaults(DEFAULT_CONFIGURATION, options);
+  const configuration = Hoek.applyToDefaults(DEFAULT_CONFIGURATION, options);
   // Adding logger
   configuration.log = configuration.log || ((msg, data) => server.log(['pg-pool', data], msg));
-
-  if (configuration.native) {
-    configuration = Hoek.applyToDefaults({ Client: PgNative }, configuration);
-  }
 
   const pools = {};
   // Check for number of dbs
@@ -44,7 +39,7 @@ exports.register = function (server, options, next) {
     configuration.connections.forEach((config, index) => {
       const key = config.key || index;
       const internalOptions = {};
-      const { host, port, user, password, Client, ssl,
+      const { host, port, user, password, ssl,
         min, max, idleTimeoutMillis, database
       } = Hoek.applyToDefaults(configuration, config);
       if (config.connectionString) {
@@ -57,21 +52,22 @@ exports.register = function (server, options, next) {
         internalOptions.password = password;
         internalOptions.database = database;
       }
-      // Check for native client
-      if (Client) {
-        internalOptions.Client = Client;
-      }
-
       internalOptions.ssl = ssl;
       internalOptions.min = min;
       internalOptions.max = max;
       internalOptions.idleTimeoutMillis = idleTimeoutMillis;
-
+      // Check if it should use native binding
+      if (configuration.native === true) {
+        Pool = require('pg').native.Pool;
+      }
       pools[key] = new Pool(internalOptions);
     });
   }
   else {
     // Single pool
+    if (configuration.native === true) {
+      Pool = require('pg').native.Pool;
+    }
     pools[configuration.default] = new Pool(configuration);
   }
 

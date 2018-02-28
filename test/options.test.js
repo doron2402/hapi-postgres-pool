@@ -7,24 +7,25 @@ Test('Native connection', (t) => {
   t.plan(8);
   let isNativeCalled = false;
   let isSSL = false;
-  const stub = {
-    pg: {
-      native: {
-        Client: () => {
-          isNativeCalled = true;
-        }
-      }
-    },
-    pool: function (options) {
-      isNativeCalled = options.Client ? true : false;
-      isSSL = options.ssl;
-      return { connect: () => {} };
-    }
+  const PoolStub = function (options) {
+    isNativeCalled = false;
+    isSSL = options.ssl;
+  };
+  const NativePoolStub = function (options) {
+    isNativeCalled = true;
+    isSSL = options.ssl;
   };
 
+  PoolStub.prototype.connect = () => {};
+  NativePoolStub.prototype.connect = () => {};
+
   const Plugin = Proxyquire('../', {
-    'pg': stub.pg,
-    'pg-pool': stub.pool
+    pg: {
+      native: {
+        Pool: NativePoolStub
+      },
+      Pool: PoolStub
+    }
   });
   const Server = Hapi.Server;
   const server = new Server();
