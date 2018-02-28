@@ -1,12 +1,21 @@
 'use strict';
 // Node modules
-const Pool = require('pg-pool');
-// const PgNative = require('pg-native');
-const PgNative = require('pg').native.Client;
+const { Pool } = require('pg')
+const PgNative = require('pg').native.Pool
 const Hoek = require('hoek');
 const Pkg = require('./package.json');
+const {
+  filterUnderscoreAttr,
+  intersectArrayWithObjectKeys,
+  _get
+} = require('./helpers');
 
 // Default configurations
+/**
+ * By default the module:
+ *  - Will not use postgresql native binding
+ *  - Attach the plugin on `onPreHandler`
+*/
 const DEFAULT_CONFIGURATION = {
   native: false,
   attach: 'onPreHandler',
@@ -16,30 +25,6 @@ const DEFAULT_CONFIGURATION = {
   ssl: false,
   idleTimeoutMillis: 1000,
   connections: [] // overwrite configuration
-};
-
-const filterUnderscoreAttr = (x) => x.indexOf('_') === -1;
-const intersectArrayWithObjectKeys = (obj, arr) => {
-  const tmp = Object.keys(obj).map((val) => {
-    return arr.indexOf(val) !== -1;
-  }).filter((x) => x === true);
-  if (tmp.length === 0) {
-    return false;
-  }
-  return true;
-};
-
-const _get = function (item) {
-  // Look for connection
-  if (this[item]) {
-    return this[item];
-  }
-  // Get default
-  if (this._options.default && this[this._options.default]) {
-    return this[this._options.default];
-  }
-  // get first connection you find
-  return this[Object.keys(this).filter(filterUnderscoreAttr)[0]];
 };
 
 exports.register = function (server, options, next) {

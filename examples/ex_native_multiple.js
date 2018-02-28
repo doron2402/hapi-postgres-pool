@@ -4,27 +4,36 @@
  * Using PG Native client
  * Run `USER=doron PASS=doron HOST=localhost PORT=5433 DB=bla connectionString=psql://....`
  */
-const Pool = require('pg-pool');
-const Hoek = require('hoek');
-const NativeClient = require('pg').native;
+const { Pool } = require('pg');
+
+const _handleError = (err, client) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(-1);
+};
+
 const config = [
   {
     user: process.env.USER || 'doron',
-    password: process.env.PASS || 'doron',
+    password: process.env.PASS || 'pass123',
     host: process.env.HOST || 'localhost',
-    port: process.env.PORT || 5432,
-    database: process.env.DB || 'db',
+    port: process.env.PORT || 10001,
+    database: process.env.DB || 'db_1',
     ssl: false,
     key: 'one'
   }, {
-    connectionString: process.env.connectionString || 'postgres://psql:psql@localhost:5432/db',
+    user: process.env.USER || 'doron',
+    password: process.env.PASS || 'pass123',
+    host: process.env.HOST || 'localhost',
+    port: process.env.PORT || 10002,
+    database: process.env.DB || 'db_2',
+    ssl: false,
     key: 'two'
   }
 ];
 const dbs = {};
-config.forEach((option) => {
-  const internalOptions = Hoek.applyToDefaults({ Client: NativeClient.Client }, option);
-  dbs[option.key] = new Pool(internalOptions);
+config.forEach((options) => {
+  dbs[options.key] = new Pool(options);
+  dbs[options.key].on('error', _handleError);
 });
 
 dbs.one.connect().then((client) => {

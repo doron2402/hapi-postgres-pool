@@ -6,7 +6,7 @@
 const Pool = require('pg-pool');
 const Hoek = require('hoek');
 const NativeClient = require('pg').native;
-const configChronosA = {
+const configDB_A = {
   user: process.env.USER || 'doron',
   password: process.env.PASS || 'doron',
   host: process.env.HOST || 'localhost',
@@ -14,7 +14,7 @@ const configChronosA = {
   database: process.env.DB || 'db',
   ssl: false
 };
-const options = Hoek.applyToDefaults({ Client: NativeClient.Client }, configChronosA);
+const options = Hoek.applyToDefaults({ Client: NativeClient.Client }, configDB_A);
 const nativePool = new Pool(options);
 
 nativePool.connect().then((client) => {

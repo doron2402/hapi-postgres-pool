@@ -4,7 +4,7 @@
  */
 const Pool = require('pg-pool');
 
-const configChronosA = {
+const configDB_A = {
   user: 'doron',
   password: 'doron',
   host: 'localhost',
@@ -12,7 +12,7 @@ const configChronosA = {
   database: 'db1',
   ssl: false
 };
-const configChronosB = {
+const configDB_B = {
   user: 'doron',
   password: 'doron',
   host: 'localhost',
@@ -21,8 +21,8 @@ const configChronosB = {
   ssl: false
 };
 
-const poolA = new Pool(configChronosA);
-const poolB = new Pool(configChronosB);
+const poolA = new Pool(configDB_A);
+const poolB = new Pool(configDB_B);
 
 poolA.connect().then((client) => {
   client.query('select * from my_table limit 1')
