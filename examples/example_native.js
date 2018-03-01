@@ -16,15 +16,16 @@ const configDB_A = {
 const nativePool = new Pool(configDB_A);
 
 nativePool.connect().then((client) => {
-  client.query('select * from pg_stat_activity limit 1')
-  .then((res) => {
-    client.release();
-    console.log('data: ', res.rows[0]);
-    process.exit(1);
-  })
-  .catch((e) => {
-    client.release();
-    console.error('query error', e.message, e.stack);
-    process.exit(0);
-  });
+  client
+    .query('select * from pg_stat_activity limit 1')
+    .then((res) => {
+      client.release();
+      console.log('data: ', res.rows[0]);
+      process.exit(1);
+    })
+    .catch((e) => {
+      client.release();
+      console.error('query error', e.message, e.stack);
+      process.exit(0);
+    });
 });

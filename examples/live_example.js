@@ -23,25 +23,27 @@ server.register(
     register: require('../'),
     options: pgSettings
   }, (err) => {
-  if (err) {
-    console.error('Failed to load plugin:', err);
+    if (err) {
+      console.error('Failed to load plugin:', err);
+    }
   }
-});
+);
 
 server.route({
   method: 'GET',
   path: '/',
   handler: function (request, reply) {
-    request.server.plugins['hapi-postgres-pool'].pg.first.connect()
-    .then((client) => {
-      client.query('select * from pg_stat_activity limit 1;').then((res) => {
-        reply(res.rows);
+    request.server.plugins['hapi-postgres-pool'].pg.first
+      .connect()
+      .then((client) => {
+        client.query('select * from pg_stat_activity limit 1;').then((res) => {
+          reply(res.rows);
+        }).catch((err) => {
+          reply(err);
+        });
       }).catch((err) => {
         reply(err);
       });
-    }).catch((err) => {
-      reply(err);
-    });
   }
 });
 

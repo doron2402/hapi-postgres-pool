@@ -97,10 +97,11 @@ exports.register = function (server, options, next) {
     };
 
     Object.keys(pools)
-    .filter(filterUnderscoreAttr)
-    .forEach((key) => {
-      request.pg[key] = pools[key];
-    });
+      .filter(filterUnderscoreAttr)
+      .forEach((key) => {
+        request.pg[key] = pools[key];
+      });
+
     reply.continue();
   });
   /**
@@ -109,12 +110,12 @@ exports.register = function (server, options, next) {
   server.once('stop', () => {
     server.log(['info', Pkg.name], 'Draining PostgreSQL connections');
     Object.keys(pools)
-    .filter(filterUnderscoreAttr)
-    .forEach((pool) => {
-      pools[pool].end(() => {
-        server.log(['info', Pkg.name], `PostgreSQL closing connection to ${pool}`);
+      .filter(filterUnderscoreAttr)
+      .forEach((pool) => {
+        pools[pool].end(() => {
+          server.log(['info', Pkg.name], `PostgreSQL closing connection to ${pool}`);
+        });
       });
-    });
   });
 
   next();
