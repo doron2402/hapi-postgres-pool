@@ -7,27 +7,26 @@ const Proxyquire = require('proxyquire');
 
 Test('default configurations',(t) => {
   let numberOfPoolBeingCalled = 0;
-  const stub = {
-    pg: {},
-    pool: function (options) {
-      numberOfPoolBeingCalled++;
-      if (options.key === 'one') {
-        t.is(options.port, 8888);
-      }
-      else if (options.key === 'two') {
-        // Should use the "parent" username
-        t.is(options.user, 'postgres');
-      }
-      else if (options.key === 'three') {
-        t.is(options.user, undefined);
-        t.is(options.connectionString, 'postgres://postgres@localhost:5432/postgres');
-      }
+  const PoolStub = function (options) {
+    numberOfPoolBeingCalled++;
+    if (options.key === 'one') {
+      t.is(options.port, 8888);
+    }
+    else if (options.key === 'two') {
+      // Should use the "parent" username
+      t.is(options.user, 'postgres');
+    }
+    else if (options.key === 'three') {
+      t.is(options.user, undefined);
+      t.is(options.connectionString, 'postgres://postgres@localhost:5432/postgres');
     }
   };
+  PoolStub.prototype.connect = () => {};
 
   const Plugin = Proxyquire('../', {
-    'pg-native': stub.pg,
-    'pg-pool': stub.pool
+    pg: {
+      Pool: PoolStub
+    }
   });
   const Server = Hapi.Server;
   const server = new Server();

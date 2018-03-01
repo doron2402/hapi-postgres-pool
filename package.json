@@ -1,6 +1,6 @@
 {
   "name": "hapi-postgres-pool",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Hapi plugin for interacting with multiple postgres",
   "main": "index.js",
   "scripts": {
@@ -13,9 +13,9 @@
   "license": "ISC",
   "dependencies": {
     "hoek": "^4.1.1",
-    "pg": "^6.2.4",
-    "pg-native": "^1.10.1",
-    "pg-pool": "^1.7.1"
+    "pg": "^7.4.1",
+    "pg-native": "^2.2.0",
+    "pg-pool": "^2.0.3"
   },
   "repository": {
     "type": "git",

@@ -3,6 +3,7 @@
 const Tap = require('tap');
 const Hapi = require('hapi');
 const Proxyquire = require('proxyquire');
+const { PoolStub } = require('./stubs');
 let server;
 
 const routePlugin = {
@@ -46,10 +47,13 @@ Tap.beforeEach((next) => {
 
 Tap.test('attach plugin by params `user`', (t) => {
   t.plan(17);
+
   const stub = {
-    pg: {},
-    pool: function (options) {
-      return { options, connect: () => {} };
+    pg: {
+      Pool: PoolStub,
+      native: {
+        Pool: PoolStub
+      }
     }
   };
   const pluginOptions = {
@@ -81,8 +85,7 @@ Tap.test('attach plugin by params `user`', (t) => {
     ]
   };
   const Plugin = Proxyquire('../', {
-    'pg': stub.pg,
-    'pg-pool': stub.pool
+    'pg': stub.pg
   });
   server.register([routePlugin, { register: Plugin, options: pluginOptions }], (err) => {
     t.isEqual(err, undefined);

@@ -4,16 +4,11 @@ const Test = require('tap').test;
 const Hapi = require('hapi');
 const Proxyquire = require('proxyquire');
 const Pkg = require('../package.json');
-
+const { PoolStub } = require('./stubs');
 Test('Expose plugin',(t) => {
-  const stub = {
-    pg: {},
-    pool: function (options) {}
-  };
 
   const Plugin = Proxyquire('../', {
-    'pg': stub.pg,
-    'pg-pool': stub.pool
+    'pg': { Pool: PoolStub }
   });
   const Server = Hapi.Server;
   const server = new Server();
@@ -50,16 +45,13 @@ Test('Expose plugin',(t) => {
 });
 
 Test('safe get connection', (t) => {
-  const stub = {
-    pg: {},
-    pool: function (options) {
-      return { test: 'ok', db: options.database };
-    }
-  };
-
   const Plugin = Proxyquire('../', {
-    'pg': stub.pg,
-    'pg-pool': stub.pool
+    'pg': {
+      Pool: PoolStub,
+      native: {
+        Pool: PoolStub
+      }
+    }
   });
   const Server = Hapi.Server;
   const server = new Server();
@@ -92,9 +84,9 @@ Test('safe get connection', (t) => {
   }, (err) => {
     t.is(err, undefined);
     t.type(server.plugins[Pkg.name].pg._get('worker-4'), 'object', 'Should return worker-4');
-    t.equal(server.plugins[Pkg.name].pg._get('worker-4').db, 'a');
-    t.equal(server.plugins[Pkg.name].pg._get('worker-100000').db, 'b');
-    t.equal(server.plugins[Pkg.name].pg._get('worker-2').db, 'b');
+    t.equal(server.plugins[Pkg.name].pg._get('worker-4').database, 'a');
+    t.equal(server.plugins[Pkg.name].pg._get('worker-100000').database, 'b');
+    t.equal(server.plugins[Pkg.name].pg._get('worker-2').database, 'b');
     t.end();
   });
 });

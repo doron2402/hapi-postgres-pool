@@ -1,12 +1,20 @@
 'use strict';
 // Node modules
-const Pool = require('pg-pool');
-// const PgNative = require('pg-native');
-const PgNative = require('pg').native.Client;
+let { Pool } = require('pg');
 const Hoek = require('hoek');
 const Pkg = require('./package.json');
+const {
+  filterUnderscoreAttr,
+  intersectArrayWithObjectKeys,
+  _get
+} = require('./helpers');
 
 // Default configurations
+/**
+ * By default the module:
+ *  - Will not use postgresql native binding
+ *  - Attach the plugin on `onPreHandler`
+*/
 const DEFAULT_CONFIGURATION = {
   native: false,
   attach: 'onPreHandler',
@@ -18,39 +26,11 @@ const DEFAULT_CONFIGURATION = {
   connections: [] // overwrite configuration
 };
 
-const filterUnderscoreAttr = (x) => x.indexOf('_') === -1;
-const intersectArrayWithObjectKeys = (obj, arr) => {
-  const tmp = Object.keys(obj).map((val) => {
-    return arr.indexOf(val) !== -1;
-  }).filter((x) => x === true);
-  if (tmp.length === 0) {
-    return false;
-  }
-  return true;
-};
-
-const _get = function (item) {
-  // Look for connection
-  if (this[item]) {
-    return this[item];
-  }
-  // Get default
-  if (this._options.default && this[this._options.default]) {
-    return this[this._options.default];
-  }
-  // get first connection you find
-  return this[Object.keys(this).filter(filterUnderscoreAttr)[0]];
-};
-
 exports.register = function (server, options, next) {
   // Merge options with default configuration
-  let configuration = Hoek.applyToDefaults(DEFAULT_CONFIGURATION, options);
+  const configuration = Hoek.applyToDefaults(DEFAULT_CONFIGURATION, options);
   // Adding logger
   configuration.log = configuration.log || ((msg, data) => server.log(['pg-pool', data], msg));
-
-  if (configuration.native) {
-    configuration = Hoek.applyToDefaults({ Client: PgNative }, configuration);
-  }
 
   const pools = {};
   // Check for number of dbs
@@ -59,7 +39,7 @@ exports.register = function (server, options, next) {
     configuration.connections.forEach((config, index) => {
       const key = config.key || index;
       const internalOptions = {};
-      const { host, port, user, password, Client, ssl,
+      const { host, port, user, password, ssl,
         min, max, idleTimeoutMillis, database
       } = Hoek.applyToDefaults(configuration, config);
       if (config.connectionString) {
@@ -72,21 +52,22 @@ exports.register = function (server, options, next) {
         internalOptions.password = password;
         internalOptions.database = database;
       }
-      // Check for native client
-      if (Client) {
-        internalOptions.Client = Client;
-      }
-
       internalOptions.ssl = ssl;
       internalOptions.min = min;
       internalOptions.max = max;
       internalOptions.idleTimeoutMillis = idleTimeoutMillis;
-
+      // Check if it should use native binding
+      if (configuration.native === true) {
+        Pool = require('pg').native.Pool;
+      }
       pools[key] = new Pool(internalOptions);
     });
   }
   else {
     // Single pool
+    if (configuration.native === true) {
+      Pool = require('pg').native.Pool;
+    }
     pools[configuration.default] = new Pool(configuration);
   }
 
