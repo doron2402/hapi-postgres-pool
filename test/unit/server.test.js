@@ -34,7 +34,7 @@ Test('Two native connections',(t) => {
     }
   };
 
-  const Plugin = Proxyquire('../', stub);
+  const Plugin = Proxyquire('../../', stub);
   const Server = Hapi.Server;
   const server = new Server();
   server.connection({ port: 3000, host: 'localhost' });
@@ -92,7 +92,7 @@ Test('Non Native connection', (t) => {
     }
   };
 
-  const Plugin = Proxyquire('../', stub);
+  const Plugin = Proxyquire('../../', stub);
   const Server = Hapi.Server;
   const server = new Server();
   server.connection({ port: 3000, host: 'localhost' });
@@ -144,7 +144,7 @@ Test('Native connection', (t) => {
     }
   };
 
-  const Plugin = Proxyquire('../', stub);
+  const Plugin = Proxyquire('../../', stub);
   const Server = Hapi.Server;
   const server = new Server();
   server.connection({ port: 3000, host: 'localhost' });

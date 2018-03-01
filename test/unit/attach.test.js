@@ -84,7 +84,7 @@ Tap.test('attach plugin by params `user`', (t) => {
       }
     ]
   };
-  const Plugin = Proxyquire('../', {
+  const Plugin = Proxyquire('../../', {
     'pg': stub.pg
   });
   server.register([routePlugin, { register: Plugin, options: pluginOptions }], (err) => {

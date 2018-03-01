@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint .",
-    "test": "tap test/*.test.js"
+    "test": "tap test/unit/*.test.js",
+    "e2e": "tap test/e2e/*.test.js"
   },
   "author": {
     "name": "Doron Segal"

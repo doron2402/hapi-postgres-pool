@@ -3,11 +3,11 @@
 const Test = require('tap').test;
 const Hapi = require('hapi');
 const Proxyquire = require('proxyquire');
-const Pkg = require('../package.json');
+const Pkg = require('../../package.json');
 const { PoolStub } = require('./stubs');
 Test('Expose plugin',(t) => {
 
-  const Plugin = Proxyquire('../', {
+  const Plugin = Proxyquire('../../', {
     'pg': { Pool: PoolStub }
   });
   const Server = Hapi.Server;
@@ -45,7 +45,7 @@ Test('Expose plugin',(t) => {
 });
 
 Test('safe get connection', (t) => {
-  const Plugin = Proxyquire('../', {
+  const Plugin = Proxyquire('../../', {
     'pg': {
       Pool: PoolStub,
       native: {

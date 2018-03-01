@@ -1,8 +1,8 @@
 'use strict';
 
 const Test = require('tap').test;
-const Pkg = require('../package.json');
-const Plugin = require('../');
+const Pkg = require('../../package.json');
+const Plugin = require('../../');
 
 Test('paclage version', (t) => {
   t.plan(1);

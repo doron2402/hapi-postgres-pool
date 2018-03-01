@@ -1,12 +1,9 @@
-language:
-  node_js
+language: node_js
 node_js:
-  - "node"
   - "4"
   - "6"
   - "8"
 sudo: false
-install:
 script:
   - npm test
 before_script:

@@ -19,7 +19,7 @@ Test('Native connection', (t) => {
   PoolStub.prototype.connect = () => {};
   NativePoolStub.prototype.connect = () => {};
 
-  const Plugin = Proxyquire('../', {
+  const Plugin = Proxyquire('../../', {
     pg: {
       native: {
         Pool: NativePoolStub

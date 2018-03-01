@@ -23,7 +23,7 @@ Test('default configurations',(t) => {
   };
   PoolStub.prototype.connect = () => {};
 
-  const Plugin = Proxyquire('../', {
+  const Plugin = Proxyquire('../../', {
     pg: {
       Pool: PoolStub
     }
