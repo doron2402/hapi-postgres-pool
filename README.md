@@ -2,9 +2,11 @@
 Hapi plugin for connecting to multiple PostgreSQL databases
 Using Postgres pool connection
 
+[![Build Status](https://travis-ci.org/doron2402/hapi-postgres-pool.svg?branch=master)](https://travis-ci.org/doron2402/hapi-postgres-pool)
+[![codecov.io](https://codecov.io/github/doron2402/hapi-postgres-pool/coverage.svg?branch=master)](https://codecov.io/github/doron2402/hapi-postgres-pool?branch=master)
 [![Code Climate](https://codeclimate.com/github/doron2402/hapi-postgres-pool/badges/gpa.svg)](https://codeclimate.com/github/doron2402/hapi-postgres-pool)
 [![devDependency Status](https://david-dm.org/doron2402/hapi-postgres-pool/dev-status.svg)](https://david-dm.org/doron2402/hapi-postgres-pool#info=devDependencies)
-[![Dependency Status](https://david-dm.org/doron2402/hapi-postgres-pool.svg)](https://david-dm.org/dwyl/hapi-postgres-connection)
+[![Dependency Status](https://david-dm.org/doron2402/hapi-postgres-pool.svg)](https://david-dm.org/doron2402/hapi-postgres-pool)
 [![npm](https://img.shields.io/npm/v/hapi-postgres-pool.svg)](https://www.npmjs.com/package/hapi-postgres-pool)
 
 
