@@ -15,7 +15,7 @@ I also want to use a module that use a minimum number of dependencies.
   - Tests
 
 ### Run
-  - If you looking for a quick working example checkout [this]('./examples/server.js)
+  - If you looking for a quick working example checkout [this](https://github.com/doron2402/hapi-postgres-pool/blob/2.2.0/examples/server.js)
 
 ### Parameters:
 + `options` (Object):
@@ -57,7 +57,7 @@ I also want to use a module that use a minimum number of dependencies.
 
 
 ## Usage
-
+  - There are number of examples under the `examples` directory
 ```js
 /**
 * Register the plugin
