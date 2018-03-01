@@ -2,6 +2,9 @@
 Hapi plugin for connecting to multiple PostgreSQL databases
 Using Postgres pool connection
 
+[![npm](https://img.shields.io/npm/v/hapi-postgres-pool.svg)](https://www.npmjs.com/package/hapi-postgres-pool)
+
+
 ## Why
 I've created this module because I couldn't find any PostgreSQL plugin that can connect to multiple Postgresql db.
 I also want to use a module that use a minimum number of dependencies.
