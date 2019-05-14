@@ -22,7 +22,8 @@ const DEFAULT_CONFIGURATION = {
   min: 4,
   max: 20,
   ssl: false,
-  idleTimeoutMillis: 1000,
+  connectionTimeoutMillis: 5000, // 5 seconds
+  idleTimeoutMillis: 10000, // 10 seconds
   connections: [] // overwrite configuration
 };
 
