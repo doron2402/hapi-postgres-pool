@@ -1,7 +1,7 @@
 'use strict';
 // Node modules
 let { Pool } = require('pg');
-const Hoek = require('hoek');
+const Hoek = require('@hapi/hoek');
 const Pkg = require('./package.json');
 const {
   filterUnderscoreAttr,
@@ -66,18 +66,11 @@ exports.register = function (server, options, next) {
   }
   else {
     // Single pool
-    if (configuration.native === true) {
-      Pool = require('pg').native.Pool;
-    }
     pools[configuration.default] = new Pool(configuration);
   }
 
   pools._options = { default: configuration.default };
   pools._get = _get;
-  // Expose pools
-  // server.plugins['hapi-postgres-pool][pg][POOL_NAME].connect().then((client) => {
-  //   client.query('SELECT * FROM ...')
-  // })...
   server.expose('pg', pools);
 
   server.ext(configuration.attach, (request, reply) => {
